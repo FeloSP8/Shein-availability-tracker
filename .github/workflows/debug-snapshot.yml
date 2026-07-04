@@ -25,6 +25,9 @@ jobs:
           pip install -r requirements.txt
           playwright install --with-deps chromium
 
+      - name: Inspect size candidates (visible in logs)
+        run: python main.py inspect --url "${{ github.event.inputs.url }}"
+
       - name: Dump snapshot
         run: python main.py debug --url "${{ github.event.inputs.url }}" --output debug
 

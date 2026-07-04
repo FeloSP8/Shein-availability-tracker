@@ -4,14 +4,17 @@ Subcomandos:
   check-once   Ejecuta una unica pasada de comprobacion (util con cron/systemd).
   run          Bucle infinito que comprueba cada `check_interval_hours`.
   debug        Vuelca captura + HTML de una URL para calibrar los selectores.
+  inspect      Imprime candidatos a "talla" encontrados en el DOM (sin
+               necesidad de descargar ningun archivo).
 """
 from __future__ import annotations
 
 import argparse
+import json
 import logging
 import time
 
-from src.browser_client import dump_debug_snapshot
+from src.browser_client import dump_debug_snapshot, inspect_size_candidates
 from src.config import ConfigError, load_config
 from src.tracker import run_check_once
 
@@ -57,6 +60,14 @@ def cmd_debug(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_inspect(args: argparse.Namespace) -> int:
+    candidates, final_url = inspect_size_candidates(args.url, headless=not args.headful)
+    print(f"URL final tras la navegacion: {final_url}")
+    print(f"Candidatos encontrados: {len(candidates)}")
+    print(json.dumps(candidates, ensure_ascii=False, indent=2))
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Rastreador de disponibilidad de tallas en SheIn")
     parser.add_argument("--verbose", action="store_true", help="Logging en modo debug")
@@ -77,6 +88,13 @@ def build_parser() -> argparse.ArgumentParser:
     debug_cmd.add_argument("--output", default="debug")
     debug_cmd.add_argument("--headful", action="store_true", help="Mostrar el navegador (requiere entorno grafico)")
     debug_cmd.set_defaults(func=cmd_debug)
+
+    inspect_cmd = subparsers.add_parser(
+        "inspect", help="Imprimir candidatos a talla encontrados en el DOM (para ver en logs)"
+    )
+    inspect_cmd.add_argument("--url", required=True)
+    inspect_cmd.add_argument("--headful", action="store_true")
+    inspect_cmd.set_defaults(func=cmd_inspect)
 
     return parser
 

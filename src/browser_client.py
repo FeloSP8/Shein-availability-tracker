@@ -140,6 +140,83 @@ def fetch_size_statuses(
             browser.close()
 
 
+_SIZE_CANDIDATE_JS = """
+() => {
+  const SIZE_LABELS = new Set([
+    'XXS','XS','S','M','L','XL','XXL','XXXL','2XL','3XL','4XL',
+    'UNICA','ONE SIZE','TALLA UNICA'
+  ]);
+  const isSizeLabel = (text) => {
+    const upper = text.trim().toUpperCase();
+    if (!upper || upper.length > 12) return false;
+    if (SIZE_LABELS.has(upper)) return true;
+    return /^\\d{1,3}(\\.\\d)?(CM)?$/.test(upper);
+  };
+
+  const results = [];
+  const seenContainers = new Set();
+  const all = document.querySelectorAll('*');
+  for (const el of all) {
+    if (el.children.length > 0) continue;
+    const text = (el.textContent || '').trim();
+    if (!isSizeLabel(text)) continue;
+
+    let container = el;
+    for (let i = 0; i < 2 && container.parentElement; i++) {
+      container = container.parentElement;
+    }
+    if (seenContainers.has(container)) continue;
+    seenContainers.add(container);
+
+    results.push({
+      text,
+      leaf_tag: el.tagName,
+      leaf_class: el.className || null,
+      container_tag: container.tagName,
+      container_class: container.className || null,
+      container_aria_disabled: container.getAttribute('aria-disabled'),
+      container_outer_html: container.outerHTML.slice(0, 400),
+    });
+    if (results.length >= 30) break;
+  }
+  return results;
+}
+"""
+
+
+def inspect_size_candidates(
+    url: str,
+    *,
+    headless: bool = True,
+    navigation_timeout_ms: int = 45000,
+) -> tuple[list[dict], str]:
+    """Busca en el DOM renderizado elementos cuyo texto parece una talla
+    (S, M, L, numeros...) y devuelve su contenedor, para poder deducir los
+    selectores reales sin adivinar nombres de clase de antemano."""
+    with sync_playwright() as playwright:
+        browser = _new_browser(playwright, headless)
+        try:
+            context = browser.new_context(
+                user_agent=DESKTOP_USER_AGENT,
+                locale="es-ES",
+                extra_http_headers={"Accept-Language": "es-ES,es;q=0.9"},
+            )
+            page = context.new_page()
+            page.set_default_navigation_timeout(navigation_timeout_ms)
+            page.goto(url, wait_until="domcontentloaded")
+            try:
+                page.wait_for_load_state("networkidle", timeout=navigation_timeout_ms)
+            except Exception:  # noqa: BLE001
+                pass
+            _dismiss_app_interstitial(page)
+            candidates = page.evaluate(_SIZE_CANDIDATE_JS)
+            final_url = page.url
+        finally:
+            browser.close()
+
+    return candidates, final_url
+
+
 def dump_debug_snapshot(
     url: str,
     output_dir: str | Path,
