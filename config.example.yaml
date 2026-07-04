@@ -1,0 +1,25 @@
+# Copia este archivo a config.yaml y edítalo con tus productos.
+
+# Cada cuántas horas se comprueba la disponibilidad.
+check_interval_hours: 3
+
+# Archivo donde se guarda qué avisos ya se enviaron (para no repetir correos).
+state_file: state.json
+
+# Tiempo máximo (ms) esperando a que cargue cada página.
+navigation_timeout_ms: 45000
+
+products:
+  - name: "Vestido SheIn"
+    url: "https://api-shein.shein.com/h5/sharejump/appjump?link=RPEiat8Fp3I_8&localcountry=ES&shc=2_RPEiat8Fp3I&url_from=GM73572744"
+    sizes: ["S"]
+
+# Opcional: solo tócalo si "python main.py debug" muestra que los selectores
+# por defecto no encuentran las tallas en tu producto. Ver README para más detalle.
+# selectors:
+#   item_selectors:
+#     - ".product-intro__size-radio .sku-item"
+#   soldout_classes:
+#     - "soldout"
+#     - "disabled"
+#   soldout_child_selector: "[class*='soldout']"
