@@ -1,0 +1,16 @@
+# Config real usada por el workflow de GitHub Actions (.github/workflows/shein-tracker.yml)
+# y por las ejecuciones locales. No contiene secretos: las credenciales SMTP
+# viven en .env (local) o en GitHub Secrets (Actions).
+
+# En GitHub Actions el ritmo real lo marca el "cron" del workflow, no este
+# valor (se usa solo si ejecutas `python main.py run` en bucle localmente).
+check_interval_hours: 3
+
+state_file: state.json
+
+navigation_timeout_ms: 45000
+
+products:
+  - name: "Vestido SheIn"
+    url: "https://api-shein.shein.com/h5/sharejump/appjump?link=RPEiat8Fp3I_8&localcountry=ES&shc=2_RPEiat8Fp3I&url_from=GM73572744"
+    sizes: ["S"]

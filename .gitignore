@@ -1,7 +1,6 @@
 __pycache__/
 *.pyc
 .env
-config.yaml
-state.json
 debug/
 .venv/
+.pytest_cache/

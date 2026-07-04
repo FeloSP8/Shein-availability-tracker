@@ -79,7 +79,7 @@ def _require_env(name: str) -> str:
 def load_smtp_config() -> SmtpConfig:
     return SmtpConfig(
         host=_require_env("SMTP_HOST"),
-        port=int(os.environ.get("SMTP_PORT", "587")),
+        port=int(os.environ.get("SMTP_PORT") or "587"),
         user=_require_env("SMTP_USER"),
         password=_require_env("SMTP_PASSWORD"),
         email_from=os.environ.get("EMAIL_FROM") or os.environ["SMTP_USER"],

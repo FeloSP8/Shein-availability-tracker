@@ -78,6 +78,47 @@ comprobar cada 3 horas:
 0 */3 * * * cd /ruta/al/proyecto && .venv/bin/python main.py check-once >> tracker.log 2>&1
 ```
 
+### Opción C: GitHub Actions (sin servidor propio)
+
+El repo incluye `.github/workflows/shein-tracker.yml`, que ejecuta
+`python main.py check-once` cada 3 horas (`cron: "0 */3 * * *"`, ajústalo si
+quieres otra cadencia) usando un runner gratuito de GitHub, sin necesidad de
+tener ningún servidor encendido.
+
+Cómo activarlo:
+
+1. En el repo de GitHub, ve a **Settings → Secrets and variables → Actions →
+   New repository secret** y crea estos secrets (mismos valores que
+   pondrías en `.env`):
+   - `SMTP_HOST` (p. ej. `smtp.gmail.com`)
+   - `SMTP_PORT` (p. ej. `587`)
+   - `SMTP_USER`
+   - `SMTP_PASSWORD` (contraseña de aplicación si usas Gmail)
+   - `EMAIL_FROM` (opcional, si no se pone se usa `SMTP_USER`)
+   - `EMAIL_TO`
+   - `SMTP_USE_TLS` (opcional, `true` por defecto)
+2. En **Settings → Actions → General → Workflow permissions**, marca
+   **"Read and write permissions"**. Es necesario para que el workflow pueda
+   guardar `state.json` (así no reenvía el mismo aviso en la siguiente
+   ejecución).
+3. `config.yaml` y `state.json` ya están versionados en el repo (no
+   contienen secretos, solo la URL/talla a vigilar y el historial de
+   avisos), así que no hace falta configurar nada más. Edita `config.yaml`
+   directamente en el repo si quieres cambiar de producto/talla.
+4. Puedes lanzarlo manualmente desde la pestaña **Actions → SheIn
+   availability check → Run workflow** para probarlo sin esperar al cron.
+
+Limitaciones a tener en cuenta:
+
+- Los `schedule` de GitHub Actions no son exactos (pueden retrasarse en
+  horas de mucha carga) y se deshabilitan automáticamente si el repositorio
+  lleva 60 días sin actividad; en ese caso hay que reactivarlos a mano desde
+  la pestaña Actions.
+- SheIn puede tratar de forma distinta el tráfico desde IPs de datacenter
+  (como las de los runners de GitHub) que desde una IP residencial. Si
+  `check-once` empieza a fallar de forma consistente con errores de
+  navegación aquí pero no en tu máquina/servidor, prueba la Opción A o B.
+
 ## Ajustar los selectores si SheIn cambia su HTML
 
 El proyecto no se pudo probar en vivo contra shein.com desde este entorno de
