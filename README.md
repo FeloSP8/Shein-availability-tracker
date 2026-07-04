@@ -115,10 +115,20 @@ Limitaciones a tener en cuenta:
   horas de mucha carga) y se deshabilitan automáticamente si el repositorio
   lleva 60 días sin actividad; en ese caso hay que reactivarlos a mano desde
   la pestaña Actions.
-- SheIn puede tratar de forma distinta el tráfico desde IPs de datacenter
-  (como las de los runners de GitHub) que desde una IP residencial. Si
-  `check-once` empieza a fallar de forma consistente con errores de
-  navegación aquí pero no en tu máquina/servidor, prueba la Opción A o B.
+- **Confirmado en pruebas: SheIn bloquea con un CAPTCHA el tráfico desde los
+  runners de GitHub Actions.** Tanto con el enlace para compartir como con la
+  URL directa del producto, la navegación termina en
+  `https://us.shein.com/risk/challenge?captcha_type=909&...` en vez de
+  llegar a la página del producto, así que `check-once` no puede leer la
+  talla (no es un problema de selectores CSS, es un bloqueo por IP de
+  datacenter). Esto no es exclusivo de este repo: los rangos de IP de los
+  runners de GitHub son de sobra conocidos por los sistemas anti-bot. Si te
+  pasa lo mismo, la Opción C no es viable para este sitio tal cual está
+  configurada; usa la Opción A (Docker) o B (cron/systemd) en tu propia
+  máquina o servidor, donde es más probable (aunque no seguro al 100%) que
+  la IP no esté marcada como IP de datacenter/bot. Antes de montar nada,
+  prueba `python main.py debug --url "<url>"` en tu propia red para
+  confirmar que ahí sí se llega a la página real del producto.
 
 ## Ajustar los selectores si SheIn cambia su HTML
 

@@ -11,6 +11,10 @@ state_file: state.json
 navigation_timeout_ms: 45000
 
 products:
-  - name: "Vestido SheIn"
+  # El enlace para compartir original resuelve a este producto en us.shein.com:
+  # "ROMWE MEN Street Life - Abrigo con capucha de manga larga, cierre con
+  # cremallera, para hombre" (id 220982658). Ajusta el nombre si no es el
+  # producto que querias vigilar.
+  - name: "ROMWE Abrigo con capucha (hombre)"
     url: "https://api-shein.shein.com/h5/sharejump/appjump?link=RPEiat8Fp3I_8&localcountry=ES&shc=2_RPEiat8Fp3I&url_from=GM73572744"
     sizes: ["S"]
