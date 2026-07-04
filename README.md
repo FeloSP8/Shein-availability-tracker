@@ -129,16 +129,20 @@ basados en la estructura habitual de las páginas de producto de SheIn, pero
 puede que necesites ajustarlos la primera vez que lo ejecutes en un entorno
 con acceso real a SheIn.
 
-Para calibrarlos:
+Para calibrarlos en local:
 
 ```bash
 python main.py debug --url "https://tu-url-de-producto"
 ```
 
-Esto genera `debug/snapshot.png` (captura de la página tal y como la vio el
-navegador) y `debug/snapshot.html` (HTML final). Ábrelos, inspecciona con las
-herramientas de desarrollador del navegador el elemento de la talla que
-buscas, y anota:
+O sin instalar nada, desde GitHub: pestaña **Actions → SheIn debug snapshot
+→ Run workflow**, pega la URL del producto, y al terminar descarga el
+artifact `shein-debug-snapshot` (contiene `snapshot.png` y `snapshot.html`).
+
+Cualquiera de las dos vías genera `debug/snapshot.png` (captura de la página
+tal y como la vio el navegador) y `debug/snapshot.html` (HTML final). Ábrelos,
+inspecciona con las herramientas de desarrollador del navegador el elemento
+de la talla que buscas, y anota:
 
 - El selector CSS que agrupa cada talla (p. ej. `.sku-item`).
 - Qué clase o atributo distingue una talla agotada de una disponible (p. ej.

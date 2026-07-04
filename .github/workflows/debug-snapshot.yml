@@ -1,0 +1,36 @@
+name: SheIn debug snapshot
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: "URL del producto a inspeccionar"
+        required: true
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install --with-deps chromium
+
+      - name: Dump snapshot
+        run: python main.py debug --url "${{ github.event.inputs.url }}" --output debug
+
+      - name: Upload snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: shein-debug-snapshot
+          path: debug/
+          retention-days: 3
