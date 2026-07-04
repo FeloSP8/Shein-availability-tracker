@@ -13,12 +13,12 @@ products:
 """
 
 VALID_ENV = """
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=user@example.com
-SMTP_PASSWORD=secret
-EMAIL_TO=user@example.com
+GMAIL_USER=user@gmail.com
+GMAIL_APP_PASSWORD=secret
+EMAIL_TO=notify@example.com
 """
+
+ENV_KEYS = ["GMAIL_USER", "GMAIL_APP_PASSWORD", "EMAIL_TO"]
 
 
 def _write(tmp_path: Path, name: str, content: str) -> Path:
@@ -28,7 +28,7 @@ def _write(tmp_path: Path, name: str, content: str) -> Path:
 
 
 def test_load_config_happy_path(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
-    for key in ["SMTP_HOST", "SMTP_PORT", "SMTP_USER", "SMTP_PASSWORD", "EMAIL_FROM", "EMAIL_TO"]:
+    for key in ENV_KEYS:
         monkeypatch.delenv(key, raising=False)
     config_path = _write(tmp_path, "config.yaml", VALID_CONFIG)
     env_path = _write(tmp_path, ".env", VALID_ENV)
@@ -39,7 +39,10 @@ def test_load_config_happy_path(tmp_path: Path, monkeypatch: pytest.MonkeyPatch)
     assert len(config.products) == 1
     assert config.products[0].sizes == ["S"]
     assert config.smtp.host == "smtp.gmail.com"
-    assert config.smtp.email_from == "user@example.com"
+    assert config.smtp.port == 587
+    assert config.smtp.user == "user@gmail.com"
+    assert config.smtp.email_from == "user@gmail.com"
+    assert config.smtp.email_to == "notify@example.com"
 
 
 def test_missing_config_file_raises(tmp_path: Path):
@@ -48,7 +51,7 @@ def test_missing_config_file_raises(tmp_path: Path):
 
 
 def test_missing_products_raises(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
-    for key in ["SMTP_HOST", "SMTP_PORT", "SMTP_USER", "SMTP_PASSWORD", "EMAIL_FROM", "EMAIL_TO"]:
+    for key in ENV_KEYS:
         monkeypatch.delenv(key, raising=False)
     config_path = _write(tmp_path, "config.yaml", "check_interval_hours: 2\nproducts: []\n")
     env_path = _write(tmp_path, ".env", VALID_ENV)
@@ -56,10 +59,10 @@ def test_missing_products_raises(tmp_path: Path, monkeypatch: pytest.MonkeyPatch
         load_config(config_path, env_path)
 
 
-def test_missing_smtp_env_raises(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
-    for key in ["SMTP_HOST", "SMTP_PORT", "SMTP_USER", "SMTP_PASSWORD", "EMAIL_FROM", "EMAIL_TO"]:
+def test_missing_gmail_env_raises(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    for key in ENV_KEYS:
         monkeypatch.delenv(key, raising=False)
     config_path = _write(tmp_path, "config.yaml", VALID_CONFIG)
-    env_path = _write(tmp_path, ".env", "SMTP_HOST=smtp.gmail.com\n")
+    env_path = _write(tmp_path, ".env", "GMAIL_USER=user@gmail.com\n")
     with pytest.raises(ConfigError):
         load_config(config_path, env_path)

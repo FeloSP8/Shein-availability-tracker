@@ -25,6 +25,9 @@ DEFAULT_SOLDOUT_CLASSES = [
 
 DEFAULT_SOLDOUT_CHILD_SELECTOR = "[class*='soldout'], [class*='sold-out']"
 
+GMAIL_SMTP_HOST = "smtp.gmail.com"
+GMAIL_SMTP_PORT = 587
+
 
 class ConfigError(Exception):
     pass
@@ -77,14 +80,17 @@ def _require_env(name: str) -> str:
 
 
 def load_smtp_config() -> SmtpConfig:
+    """Solo requiere 3 datos: la cuenta de Gmail, su contraseña de aplicacion
+    y el correo que recibira los avisos. El host/puerto de Gmail son fijos."""
+    user = _require_env("GMAIL_USER")
     return SmtpConfig(
-        host=_require_env("SMTP_HOST"),
-        port=int(os.environ.get("SMTP_PORT") or "587"),
-        user=_require_env("SMTP_USER"),
-        password=_require_env("SMTP_PASSWORD"),
-        email_from=os.environ.get("EMAIL_FROM") or os.environ["SMTP_USER"],
+        host=GMAIL_SMTP_HOST,
+        port=GMAIL_SMTP_PORT,
+        user=user,
+        password=_require_env("GMAIL_APP_PASSWORD"),
+        email_from=user,
         email_to=_require_env("EMAIL_TO"),
-        use_tls=os.environ.get("SMTP_USE_TLS", "true").lower() not in ("0", "false", "no"),
+        use_tls=True,
     )
 
 

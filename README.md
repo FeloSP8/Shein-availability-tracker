@@ -38,9 +38,14 @@ cp config.example.yaml config.yaml
 cp .env.example .env
 ```
 
-Edita `config.yaml` con tus productos y `.env` con tus credenciales SMTP
-(para Gmail necesitas una "contraseña de aplicación": actívala en
-https://myaccount.google.com/apppasswords).
+Edita `config.yaml` con tus productos. En `.env` solo hacen falta 3 datos
+(el envío usa Gmail, con host/puerto ya fijados en el código):
+
+- `GMAIL_USER`: tu correo de Gmail (también se usa como remitente).
+- `GMAIL_APP_PASSWORD`: una "contraseña de aplicación" (actívala en
+  https://myaccount.google.com/apppasswords; necesitas la verificación en
+  dos pasos activada y no puedes usar tu contraseña normal de Gmail).
+- `EMAIL_TO`: el correo que recibirá los avisos de disponibilidad.
 
 ## Uso
 
@@ -88,15 +93,11 @@ tener ningún servidor encendido.
 Cómo activarlo:
 
 1. En el repo de GitHub, ve a **Settings → Secrets and variables → Actions →
-   New repository secret** y crea estos secrets (mismos valores que
+   New repository secret** y crea estos 3 secrets (mismos valores que
    pondrías en `.env`):
-   - `SMTP_HOST` (p. ej. `smtp.gmail.com`)
-   - `SMTP_PORT` (p. ej. `587`)
-   - `SMTP_USER`
-   - `SMTP_PASSWORD` (contraseña de aplicación si usas Gmail)
-   - `EMAIL_FROM` (opcional, si no se pone se usa `SMTP_USER`)
+   - `GMAIL_USER`
+   - `GMAIL_APP_PASSWORD`
    - `EMAIL_TO`
-   - `SMTP_USE_TLS` (opcional, `true` por defecto)
 2. En **Settings → Actions → General → Workflow permissions**, marca
    **"Read and write permissions"**. Es necesario para que el workflow pueda
    guardar `state.json` (así no reenvía el mismo aviso en la siguiente
